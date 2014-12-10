@@ -7,6 +7,7 @@ require_relative 'lib/blogtastic.rb'
 
 class Blogtastic::Server < Sinatra::Application
   configure do
+    set :bind, '0.0.0.0'
     enable :sessions
     use Rack::Flash
   end
@@ -32,28 +33,43 @@ class Blogtastic::Server < Sinatra::Application
 
   get '/signup' do
     # TODO: render template with form for user to sign up
+    erb :signup
   end
 
   post '/signup' do
+    db = Blogtastic.create_db_connection 'blogtastic'
     # TODO: save user's info to db and create session
     # Create the session by adding a new key value pair to the
     # session hash. The key should be 'user_id' and the value
     # should be the user id of the user who was just created.
+    creds = Blogtastic::UsersRepo.save(db, {
+      :username => params[:username],
+      :password => params[:password]
+      })
+    session['user_id'] = creds['id']
+    redirect to '/signin'
   end
 
   get '/signin' do
     # TODO: render template for user to sign in
+    erb :signin
   end
 
   post '/signin' do
+    db = Blogtastic.create_db_connection 'blogtastic'
     # TODO: validate users credentials and create session
     # Create the session by adding a new key value pair to the
     # session hash. The key should be 'user_id' and the value
     # should be the user id of the user who just logged in.
+    creds = Blogtastic::UsersRepo.find_by_name(db, params[:username])
+    session['user_id'] = creds['id'] if creds['password'] == params[:password]
+    redirect to '/posts'
   end
 
   get '/logout' do
     # TODO: destroy the session
+    session.delete('user_id')
+    redirect to '/signin'
   end
 
   ###################################################################
