@@ -5,6 +5,12 @@ module Blogtastic
       result = db.exec(sql)
       result.entries
     end
+
+    def self.edit db, post_data
+      sql = %q[UPDATE posts SET title = $1, content = $2 WHERE id = $3 RETURNING *]
+      result = db.exec(sql, [post_data['title'], post_data['content'], post_data['id']])
+      result.first
+    end
   
     def self.find db, id
       sql = %q[SELECT * FROM posts WHERE id = $1]
@@ -27,7 +33,7 @@ module Blogtastic
     def self.destroy db, id
       sql = %q[DELETE FROM posts where id = $1]
       db.exec(sql, [id])
-      post_exists?(db, id)
+      # post_exists?(db, id)
     end
   
     private

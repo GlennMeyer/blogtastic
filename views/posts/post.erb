@@ -2,6 +2,10 @@
   <div class='eight columns omega aside-container'>
     <h4><%= @post['title'] %> by <%= @user['username'] %></h4>
     <%= @post['content'] %>
+    <br />
+    <% if @current_user['id'] == @user['id'] || @current_user['username'] == @user['username'] %>
+    <a href="/posts/<%= @post['id'] %>/edit">edit</a>
+    <% end %>
   </div>
   
   <div class='eight columns omega aside-container'>
@@ -11,9 +15,23 @@
       <input type='hidden' name='user_id' value='<%= @current_user['id'] %>'>
       <input type='submit' value='Submit'>
     </form>
-  
+
+    <% if @current_user['id'] == @user['id'] || @current_user['username'] == @user['username']  %>
+    <form action="/posts/<%= @post['id'] %>" method='post'>
+      <input type="hidden" name="_method" value="delete">
+      <input type='submit' value='Delete Post'>
+    </form>
+    <% end %>
+
     <% @comments.each do |comment| %>
-      <p><%= comment['user'] %>: <%= comment['content'] %></p>
+      <p><%= comment['user'] %>: <%= comment['content'] %>
+        <% if comment['user'] == @current_user['username'] || @current_user['id'] == @user['id'] %>
+        <form action="/posts/<%= @post['id'] %>/comment/<%= comment['id'] %>" method='post'>
+          <input type="hidden" name="_method" value="delete">
+          <input type='submit' value='Delete Comment'>
+        </form>
+        <% end %>
+      </p>
     <% end %>
   </div>
 </div><!-- end sixteen columnns -->
